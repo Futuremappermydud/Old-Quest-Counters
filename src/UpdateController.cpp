@@ -9,7 +9,7 @@ Il2CppObject* DownloadHandler = nullptr;
 Il2CppObject* WebRequestAsyncOp = nullptr;
 Il2CppString* JsonStr = nullptr; 
 
-std::string Ver = "1.2.3.4 STABLE";
+std::string Ver = "1.2.4 STABLE";
 std::string LATESTVer = "LOADING";
 
 CustomUI::TextObject VersionText;

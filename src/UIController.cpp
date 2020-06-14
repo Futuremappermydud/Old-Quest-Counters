@@ -18,6 +18,7 @@ enum UI
 	SaberSpeed,
 	WallsLeft,
 	NotesLeft,
+	PlayCount,
 } UIType;
 
 int index = 0;
@@ -49,6 +50,9 @@ void SetConfigValue(UI Type, bool Value)
 		break;
 	case NotesLeft:
 		getConfig().config["Notes Left / Note Percentage"].SetBool(Value);
+		break;
+		case PlayCount:
+		getConfig().config["Play Count(er)"].SetBool(Value);
 		break;
 	default:
 		break;
@@ -84,6 +88,9 @@ bool GetConfigValue(UI Type)
 	case NotesLeft:
 		return getConfig().config["Notes Left / Note Percentage"].GetBool();
 		break;
+		case PlayCount:
+		return getConfig().config["Play Count(er)"].GetBool();
+		break;
 	default:
 		break;
 	}
@@ -118,6 +125,9 @@ std::string GetText(UI Type)
 	case NotesLeft:
 		return "Notes Left";
 		break;
+		case PlayCount:
+		return "Play Count";
+		break;
 	default:
 		return "Unknow poggers";
 		break;
@@ -132,7 +142,7 @@ std::string GetEnabledText(UI Type)
 void SwitchCounter()
 {
 	index++;
-	if(index == 8) index = 0;
+	if(index == 9) index = 0;
 	UIType = (UI)index;
 	std::string Text = GetText(UI(index));
     RunMethod(SwitchButtonTMP, "set_text", createcsstr(Text));
