@@ -21,6 +21,7 @@ int oneSaberType;
 bool NoHud = false;
 
 int Notes;
+std::string JSON = R"({"metadata":{"difficulties":{"easy":true,"expert":false,"expertPlus":true,"hard":false,"normal":false},"duration":201,"characteristics":[{"difficulties":{"easy":null,"expert":null,"expertPlus":{"duration":529.933349609375,"length":198,"njs":21,"njsOffset":-0.30000001192092896,"bombs":43,"notes":1170,"obstacles":19},"hard":null,"normal":null},"name":"Standard"},{"difficulties":{"easy":{"duration":0,"length":0,"njs":16,"njsOffset":0,"bombs":0,"notes":0,"obstacles":0},"expert":null,"expertPlus":null,"hard":null,"normal":null},"name":"Lightshow"}],"levelAuthorName":"ETAN","songAuthorName":"Reol","songName":"Utena","songSubName":"","bpm":160},"stats":{"downloads":11119,"plays":0,"downVotes":48,"upVotes":326,"heat":1459.8648634,"rating":0.8092436735206341},"description":"Building Blocks 2020 1st Place Entry\n\nSubmission #48\n\nThank you for playing!\n\nuse CHROMA for cool lights and such\n\nPreview: https://youtu.be/zrnWfI5xpwI","deletedAt":null,"_id":"5ed069402586060006ab0bdf","key":"abc4","name":"Reol - Utena","uploader":{"_id":"5cff0b7798cc5a672c855775","username":"etan"},"hash":"0cb1b38c96b71676db359a95353dca50ba54b183","uploaded":"2020-05-29T01:45:36.835Z","directDownload":"/cdn/abc4/0cb1b38c96b71676db359a95353dca50ba54b183.zip","downloadURL":"/api/download/key/abc4","coverURL":"/cdn/abc4/0cb1b38c96b71676db359a95353dca50ba54b183.jpg"})";
 
 MAKE_HOOK_OFFSETLESS(UIStart, void, Il2CppObject* self) {
     UIStart(self);
@@ -129,14 +130,15 @@ MAKE_HOOK_OFFSETLESS(Speed, void, Il2CppObject* self)
 
 MAKE_HOOK_OFFSETLESS(CheckVersion, void, Il2CppObject* self, bool firstActivation, int activationType)
 {
-    Update_Update();
     CheckVersion(self, firstActivation, activationType);
+    
 }
 
 MAKE_HOOK_OFFSETLESS(StartVersion, void, Il2CppObject* self, bool firstActivation, int activationType)
 {
     StartVersion(self, firstActivation, activationType);
     Update_Start(self);
+    Update_Update();
 }
 
 MAKE_HOOK_OFFSETLESS(StandardLevelDetailView_RefreshContent, void, Il2CppObject * self) {
@@ -177,6 +179,24 @@ MAKE_HOOK_OFFSETLESS(StartConfigUI, void, Il2CppObject* self)
     SettingsUI_Start(self);
 }
 
+MAKE_HOOK_OFFSETLESS(LevelListTableCell_SetDataFromLevelAsync, void, Il2CppObject* self, Il2CppObject* level, bool isFavorite) {
+    LevelListTableCell_SetDataFromLevelAsync(self, level, isFavorite);
+    Il2CppObject* _authorText = *GetFieldValue(self, "_songNameText");
+    rapidjson::Document d;
+    d.Parse(JSON.c_str());
+    int upvotes = d["stats"]["upVotes"].GetInt();
+    int downvotes = d["stats"]["downVotes"].GetInt();
+    std::string Final = to_utf8(csstrtostr(*GetPropertyValue<Il2CppString*>(_authorText, "text")));
+    Il2CppString* endstring = createcsstr(Final + "<size=65%>\nUpvotes: " + std::to_string(upvotes) + "\nDownvotes: " + std::to_string(downvotes));
+    SetPropertyValue(_authorText, "richText", true);
+    RunMethod(_authorText, "SetText", endstring);
+}
+
+MAKE_HOOK_OFFSETLESS(LevelCollectionTableView_Cellsize, float, Il2CppObject* self) {
+    SetFieldValue(self, "_cellHeight", 10.0f);
+    return LevelCollectionTableView_Cellsize(self);
+}
+
 extern "C" void setup(ModInfo& info) {
     info.id = "QuestCounters";
     info.version = "1.2.5";
@@ -213,7 +233,8 @@ extern "C" void load() {
     INSTALL_HOOK_OFFSETLESS(SpawnObstacle, FindMethodUnsafe("", "BeatmapObjectSpawnController", "SpawnObstacle", 1));
     INSTALL_HOOK_OFFSETLESS(RelativeScoreAndImmediateRankCounter_Update, FindMethodUnsafe("", "RelativeScoreAndImmediateRankCounter", "UpdateRelativeScoreAndImmediateRank", 4));
     INSTALL_HOOK_OFFSETLESS(StartConfigUI, FindMethodUnsafe("", "PauseMenuManager", "Start", 0));
-
+    INSTALL_HOOK_OFFSETLESS(LevelListTableCell_SetDataFromLevelAsync, FindMethodUnsafe("", "LevelListTableCell", "SetDataFromLevelAsync", 2));
+    //INSTALL_HOOK_OFFSETLESS(LevelCollectionTableView_Cellsize, FindMethodUnsafe("", "LevelCollectionTableView", "CellSize", 0));
 }
 /*
 class LightData
