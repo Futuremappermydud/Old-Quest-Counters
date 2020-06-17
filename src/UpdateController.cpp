@@ -9,12 +9,12 @@ Il2CppObject* DownloadHandler = nullptr;
 Il2CppObject* WebRequestAsyncOp = nullptr;
 Il2CppString* JsonStr = nullptr; 
 
-std::string Ver = "1.2.4 STABLE";
+std::string Ver = "1.2.5";
 std::string LATESTVer = "LOADING";
 
 CustomUI::TextObject VersionText;
 
-void CompletedWebRequest(Il2CppObject* asyncOperation)
+void CompletedWebRequest()
 {
     DownloadHandler = CRASH_UNLESS(RunMethod<Il2CppObject*>(WebRequestAPI, "get_downloadHandler"));
 
@@ -23,20 +23,23 @@ void CompletedWebRequest(Il2CppObject* asyncOperation)
     string requestCompleteText = to_utf8(csstrtostr(JsonStr));
     logger->debug("Text: %s", requestCompleteText.c_str());
     LATESTVer = requestCompleteText;
+    VersionText.set("<color=#FFD700>Quest Counters</color>\nYour Version: " + Ver + "\nRecent Version: " + LATESTVer);
 }
+
 void WebRequest()
 {
     WebRequestAPI = CRASH_UNLESS(RunMethod(GetClassFromName("UnityEngine.Networking", "UnityWebRequest"), "Get", createcsstr(URL)));
 
-    CRASH_UNLESS(RunMethod(WebRequestAPI, FindMethodUnsafe("UnityEngine.Networking", "UnityWebRequest", "SetRequestHeader", 2), createcsstr("User-Agent"), createcsstr("Mozilla/5.0 (Linux; Android 7.1.1; Quest) AppleWebKit/537.36 (KHTML, like Gecko) OculusBrowser/6.0.13.162924336 SamsungBrowser/4.0 Chrome/74.0.3729.182 Mobile VR Safari/537.36")));
+    CRASH_UNLESS(RunMethod(WebRequestAPI, FindMethodUnsafe("UnityEngine.Networking", "UnityWebRequest", "SetRequestHeader", 2), createcsstr("User-Agent"), createcsstr("Quest Counters / " + Ver)));
 
     WebRequestAsyncOp = CRASH_UNLESS(RunMethod(WebRequestAPI, "SendWebRequest"));
-    auto action = MakeAction(FindField(WebRequestAsyncOp, "m_completeCallback"), nullptr, CompletedWebRequest);
+    auto action = MakeAction(FindField(WebRequestAsyncOp, "m_completeCallback"), (Il2CppObject*)nullptr, CompletedWebRequest);
     SetFieldValue(WebRequestAsyncOp, "m_completeCallback", action);
 }
+
 void Update_Update()
 {
-	//WebRequest();
+	WebRequest();
 }
 
 void Update_Start(Il2CppObject* self)
@@ -54,7 +57,7 @@ void Update_Start(Il2CppObject* self)
     VersionText.sizeDelta = {0, -60 };
     VersionText.parentTransform = CampaignBTransform;
     //Set Text
-    VersionText.text = "<color=#FFD700>Quest Counters</color>\nYour Version: " + Ver;// + "\nRecent Version: " + LATESTVer;
+    VersionText.text = "<color=#FFD700>Quest Counters</color>\nYour Version: " + Ver + "\nRecent Version: " + LATESTVer;
     //Create
     CRASH_UNLESS(VersionText.create());
 }

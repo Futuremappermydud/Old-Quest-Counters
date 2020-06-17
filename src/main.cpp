@@ -4,6 +4,7 @@
 #include "../extern/beatsaber-hook/shared/utils/il2cpp-functions.hpp"
 #include "../extern/beatsaber-hook/shared/utils/utils.h"
 #include "../extern/BeatSaberQuestCustomUI-master/shared/customui.hpp"
+
 using namespace il2cpp_utils;
 using namespace CustomUI;
 
@@ -178,7 +179,7 @@ MAKE_HOOK_OFFSETLESS(StartConfigUI, void, Il2CppObject* self)
 
 extern "C" void setup(ModInfo& info) {
     info.id = "QuestCounters";
-    info.version = "1.1.9";
+    info.version = "1.2.5";
     modInfo = info;
     // Create logger
     static std::unique_ptr<const Logger> ptr(new Logger(info));
@@ -214,3 +215,48 @@ extern "C" void load() {
     INSTALL_HOOK_OFFSETLESS(StartConfigUI, FindMethodUnsafe("", "PauseMenuManager", "Start", 0));
 
 }
+/*
+class LightData
+{
+    public: 
+    int Time;
+    int Type;
+    int Value;
+    rapidjson::GenericObject<false, rapidjson::Value> CustomData;
+    LightData(int value, int type, int time, auto Data)
+    {
+        Time = time;
+        Type = type;
+
+    };
+};
+Array<LightData> GetLightData(std::string BeatMapJson)
+{
+    Array<float > arr;
+
+}
+std::string GetBeatmaps(std::string songID, std::string InfoJson)
+{
+    static rapidjson::Document d;
+    d.Parse(InfoJson.c_str());
+    auto arr = d["_difficultyBeatmapSets"].GetArray();
+    auto arr2 = arr[0]["_difficultyBeatmaps"].GetArray();
+    auto fileName = arr2[0]["_beatmapFilename"].GetString();
+    return GetInfoJson(songID, "/" + fileName);
+}
+std::string GetInfoJson(std::string songID, std::string FileName = "/info.dat")
+{
+    std::string songPath = "/sdcard/BMBFData/CustomSongs/" + songID + FileName;
+    std::string myText;
+    std::ifstream SongFile(songPath);
+    std::string finalstr = "";
+    while (getline(SongFile, myText)) {
+        finalstr += myText;
+    }
+    if (finalstr == "") {
+        finalstr = "invalid";
+    }
+    SongFile.close();
+    return GetBeatmaps(songID, finalstr);
+}
+*/
